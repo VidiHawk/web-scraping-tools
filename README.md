@@ -27,6 +27,22 @@ Then install dependencies
 pip install -r requirements.txt
 ```
 
+# Adding your own tools
+
+If you want to add packages to the requirement.txt file, I recommand using the pipreqs package. To install it:
+
+```
+pip install pipreqs
+```
+
+To build automatically your requirements.txt, just run the following command in the project directory:
+
+```
+$ pipreqs . --force
+```
+
+The --force flag will overwrite the existing requirements.txt file.
+
 ## Notes
 
 These scripts have been created and tested on the Ubuntu 20.04.4 LTS operating system and Python 3.8.10
@@ -38,9 +54,3 @@ These scripts are mainly based on the ffmpeg and youtube-dl libraries. Please no
 - [youtube_dl](https://github.com/ytdl-org/youtube-dl/blob/master/README.md#readme)
 - [yt_dlt](https://github.com/yt-dlp/yt-dlp/blob/master/README.md)
 - [ffmpeg](https://ffmpeg.org/)
-
-# Thank you!
-
-If you appreciated this, feel free to follow me or donate!
-
-ETH/Polygon/Avalanche/etc Address: 0x2c4D0b089E74F17F586C9d9bEF48D2199f17a6A7
