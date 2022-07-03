@@ -108,10 +108,10 @@ class GetInstagramProfile:
 
 if __name__ == "__main__":
     cls = GetInstagramProfile()
-    # cls.download_users_profile_picture("best_gadgets_2030")
-    # cls.download_users_posts_with_periods("best_gadgets_2030")
-    # cls.download_hastag_posts("gadgets")
+    # cls.download_users_profile_picture("ryujinclo")
+    # cls.download_users_posts_with_periods("ryujinclo")
+    cls.download_hastag_posts("ryujinclo")
     # cls.get_users_followers("best_gadgets_2030")
     # cls.get_users_followings("best_gadgets_2030")
     # cls.get_post_comments("laydline")
-    cls.get_post_info_csv("coolest.gadget")
+    # cls.get_post_info_csv("ryujinclo")
