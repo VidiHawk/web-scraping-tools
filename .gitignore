@@ -1,0 +1,6 @@
+.env
+*.json
+*.geojson
+*.jpeg
+*.jpg 
+*.png
