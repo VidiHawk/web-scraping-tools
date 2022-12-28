@@ -154,8 +154,11 @@ max_cost = 2 # in USD
 # get_place_ids(max_cost)
 # get_photo_urls(max_cost)
 get_photos(max_cost)
-
-
+'''
+my first trial with this code of the Place API was not satisfactory. Despite making a 
+few thousand calls, I was only able to collect about 20 photos and about half of them 
+were not totally relevant. This is not worth the cost and work involved.
+'''
 
 
 
