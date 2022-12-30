@@ -4,6 +4,7 @@
 *.jpeg
 *.jpg 
 *.png
+/data/*
 
 __pycache__/google_image.cpython-37.pyc
 ghostdriver.log
