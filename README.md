@@ -7,6 +7,7 @@ This is intended to grow into a library of useful data scraping tools scripted i
 ### Images
 - [Instagram images, comments, and data scraping](ig_scraper.py)
 - [Get photos from Google Maps based on coordinates](googlemap_places.py)
+- [Search and download photos from Google Image](google_image.py)
 
 ### Video and audio
 - [Convert video files to audio files](video2audio.py)

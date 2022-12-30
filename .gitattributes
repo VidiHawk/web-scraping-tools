@@ -1,0 +1,6 @@
+# perform LF normalization
+
+*.txt text
+*.html text
+*.css text
+*.js text
