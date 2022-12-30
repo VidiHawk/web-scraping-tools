@@ -8,7 +8,7 @@ from selenium.common.exceptions import NoSuchElementException
 
 # import helper libraries
 import time
-import urllib.request
+import json
 from urllib.parse import urlparse
 import concurrent.futures
 import os
@@ -21,19 +21,24 @@ import utils.patch_chromedriver as patch_chromedriver
 from utils.patch_chromedriver import webdriver_executable
 
 class GoogleImageScraper():
-    def __init__(self, webdriver_path, image_path, search_key="cat", number_of_images=1, headless=True, min_resolution=(0, 0), max_resolution=(1920, 1080), max_missed=10):
-        #check parameter types
-        image_path = os.path.join(image_path, search_key)
+    def __init__(self, webdriver_path, image_path, search_key={"WR234":"robot"}, number_of_images=1, headless=True, min_resolution=(0, 0), max_resolution=(1920, 1080), max_missed=10):
+        # check parameter types
+        key = list(search_key)[0]
+        value = list(search_key.values())[0]
+        image_path = os.path.join(image_path, key)
         if (type(number_of_images)!=int):
             print("[Error] Number of images must be integer value.")
             return
         if not os.path.exists(image_path):
             print("[INFO] Image path not found. Creating a new folder.")
             os.makedirs(image_path)
-        #check if chromedriver is updated
+            with open(image_path + '/search.txt', 'w') as f:
+                f.write(f'{key}\n\n{value}')
+
+        # check if chromedriver is updated
         while(True):
             try:
-                #try going to www.google.com
+                # try going to www.google.com
                 options = Options()
                 if(headless):
                     options.add_argument('--headless')
@@ -44,7 +49,7 @@ class GoogleImageScraper():
                     driver.find_element_by_id("L2AGLb").click()
                 break
             except:
-                #patch chromedriver if not available or outdated
+                # patch chromedriver if not available or outdated
                 try:
                     driver
                 except NameError:
@@ -55,7 +60,7 @@ class GoogleImageScraper():
                     exit("[ERR] Please update the chromedriver.exe in the webdriver folder according to your chrome version:https://chromedriver.chromium.org/downloads")
 
         self.driver = driver
-        self.search_key = search_key
+        self.search_key = list(search_key.values())[0]
         self.number_of_images = number_of_images
         self.webdriver_path = webdriver_path
         self.image_path = image_path
@@ -65,14 +70,9 @@ class GoogleImageScraper():
         self.max_resolution = max_resolution
         self.max_missed = max_missed
 
-    def find_image_urls(self):
-        """
-            This function search and return a list of image urls based on the search key.
-            Example:
-                google_image_scraper = GoogleImageScraper("webdriver_path","image_path","search_key",number_of_photos)
-                image_urls = google_image_scraper.find_image_urls()
 
-        """
+    def find_image_urls(self):
+        """ This function searches and return a list of image urls based on the search key."""
         print("[INFO] Gathering image links")
         image_urls=[]
         count = 0
@@ -91,7 +91,6 @@ class GoogleImageScraper():
                 if (missed_count>self.max_missed):
                     print("[INFO] Maximum missed photos reached, exiting...")
                     break
-
             try:
                 #select image from the popup
                 time.sleep(1)
@@ -108,7 +107,6 @@ class GoogleImageScraper():
                         break
             except Exception:
                 print("[INFO] Unable to get link")
-
             try:
                 #scroll page to load next image
                 if(count%3==0):
@@ -121,40 +119,33 @@ class GoogleImageScraper():
                 time.sleep(1)
             indx += 1
 
-
         self.driver.quit()
         print("[INFO] Google search ended")
         return image_urls
 
+
     def save_images(self,image_urls, keep_filenames):
         print(keep_filenames)
-        #save images into file directory
-        """
-            This function takes in an array of image urls and save it into the given image path/directory.
-            Example:
-                google_image_scraper = GoogleImageScraper("webdriver_path","image_path","search_key_id",number_of_photos)
-                image_urls=["https://example_1.jpg","https://example_2.jpg"]
-                google_image_scraper.save_images(image_urls)
-
-        """
+        # save images into file directory
+        """ This function takes in an array of image urls and save it into the given image path/directory. """
         print("[INFO] Saving image, please wait...")
-        for indx,image_url in enumerate(image_urls):
+        for indx, image_url in enumerate(image_urls):
             try:
                 print("[INFO] Image url:%s"%(image_url))
-                search_string = ''.join(e for e in self.search_key if e.isalnum())
+                # search_string = ''.join(e for e in self.search_key if e.isalnum())
                 image = requests.get(image_url,timeout=5)
                 if image.status_code == 200:
                     with Image.open(io.BytesIO(image.content)) as image_from_web:
                         try:
                             if (keep_filenames):
-                                #extact filename without extension from URL
+                                # extact filename without extension from URL
                                 o = urlparse(image_url)
                                 image_url = o.scheme + "://" + o.netloc + o.path
                                 name = os.path.splitext(os.path.basename(image_url))[0]
-                                #join filename and extension
+                                # join filename and extension
                                 filename = "%s.%s"%(name,image_from_web.format.lower())
                             else:
-                                filename = "%s%s.%s"%(search_string,str(indx),image_from_web.format.lower())
+                                filename = "%s%s.%s"%(str(indx),image_from_web.format.lower())
 
                             image_path = os.path.join(self.image_path, filename)
                             print(
@@ -168,7 +159,6 @@ class GoogleImageScraper():
                             if image_resolution[0]<self.min_resolution[0] or image_resolution[1]<self.min_resolution[1] or image_resolution[0]>self.max_resolution[0] or image_resolution[1]>self.max_resolution[1]:
                                 image_from_web.close()
                                 os.remove(image_path)
-
                         image_from_web.close()
             except Exception as e:
                 print("[ERROR] Download failed: ",e)
@@ -183,19 +173,32 @@ def worker_thread(search_key):
     image_urls = image_scraper.find_image_urls()
     image_scraper.save_images(image_urls, keep_filenames)
 
-    #Release resources
+    # Release resources
     del image_scraper
 
+def get_data(in_file):
+    search_keys = []
+    data_json = json.load(open(in_file))
+    for i in data_json["features"]:
+        if i["properties"]["country_long"] ==  "Ireland":
+            if i["properties"]["address"] != "unknown":
+                capacity = i["properties"]["capacity_mw"]
+                fuel = i["properties"]["primary_fuel"]
+                address = i["properties"]["address"]
+                id = i["properties"]["id"]
+                search = str(capacity) + " MW " + str(fuel) + " " + str(address)
+                search_dic = {}
+                search_dic[id] = search
+                search_keys.append(search_dic)
+    return search_keys
+
 if __name__ == "__main__":
-    #Define file path
+    # Define file path
     webdriver_path = os.path.normpath(os.path.join(os.getcwd(), 'webdriver', webdriver_executable()))
-    image_path = os.path.normpath(os.path.join(os.getcwd(), 'photos'))
+    image_path = os.path.normpath(os.path.join(os.getcwd(), 'data/google_image/photos'))
 
-    #Add new search key into array ["cat","t-shirt","apple","orange","pear","fish"]
-    search_keys = list(set(["36 MW wind kill hill Brookfield Renewable Energy"]))
-
-
-    #Parameters
+    # Parameters
+    in_file = 'data/input/global.json'
     number_of_images = 5                # Desired number of images
     headless = True                     # True = No Chrome GUI
     min_resolution = (0, 0)             # Minimum desired image resolution
@@ -204,8 +207,12 @@ if __name__ == "__main__":
     number_of_workers = 1               # Number of "workers" used
     keep_filenames = False              # Keep original URL image filenames
 
-    #Run each search_key in a separate thread
-    #Automatically waits for all threads to finish
-    #Removes duplicate strings from search_keys
+    # Search keys
+    search_keys = get_data(in_file)
+
+    # Run each search_key in a separate thread
+    # Automatically waits for all threads to finish
+    # Removes duplicate strings from search_keys
     with concurrent.futures.ThreadPoolExecutor(max_workers=number_of_workers) as executor:
         executor.map(worker_thread, search_keys)
+
