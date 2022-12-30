@@ -145,7 +145,7 @@ class GoogleImageScraper():
                                 # join filename and extension
                                 filename = "%s.%s"%(name,image_from_web.format.lower())
                             else:
-                                filename = "%s%s.%s"%(str(indx),image_from_web.format.lower())
+                                filename = "%s.%s"%(str(indx),image_from_web.format.lower())
 
                             image_path = os.path.join(self.image_path, filename)
                             print(
@@ -216,3 +216,9 @@ if __name__ == "__main__":
     with concurrent.futures.ThreadPoolExecutor(max_workers=number_of_workers) as executor:
         executor.map(worker_thread, search_keys)
 
+'''
+if no result, redo a search under this format:
+
+528MW power plant cork
+
+'''
